@@ -40,7 +40,7 @@ The color of the logo (hex, rgb, rgba, hsl, hsla and css named colors supported)
 ## Example usage
 
 ```
-uses: sebymiano/shields-badge-generator@v1.0.3
+uses: sebymiano/shields-badge-generator@v1.0.4
 with:
   label: 'Docker build'
   status: 'Success'
