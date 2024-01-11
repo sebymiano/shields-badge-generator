@@ -1,6 +1,9 @@
 name: 'Create Shield Badge'
 author: 'Sebastiano Miano'
 description: 'Create a SVG badge using GitHub Actions'
+branding:
+  icon: 'shield'
+  color: 'blue'
 inputs:
   label:
     description: 'The left label of the badge, usually static.'
