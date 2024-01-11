@@ -1,0 +1,63 @@
+name: Test action
+on:
+  push:
+    branches:
+      - "*"
+      - "!badges"
+
+jobs:
+  create-badge:
+    name: Create Docker Image Badge
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "${GITHUB_OUTPUT}"
+        id: extract_branch
+      - name: Prepare environment
+        id: environment
+        run: |
+            # Output values to be used by other steps
+            echo "path=${BADGE_PATH}" >> "${GITHUB_OUTPUT}"
+            echo "branch=${BRANCH}" >> "${GITHUB_OUTPUT}"
+        env:
+            BADGE_PATH: ${{ steps.extract_branch.outputs.branch }}/test.svg
+            BRANCH: badges
+      - uses: actions/checkout@v4
+        with:
+            ref: ${{ steps.environment.outputs.branch }}
+        # Create the directory where badges will be saved, if needed
+      - name: Create destination directory
+        env:
+            BADGE_PATH: ${{ steps.environment.outputs.path }}
+        run: mkdir -p "${BADGE_PATH%/*}"
+      - name: Generate the badge SVG image
+        uses: sebymiano/shields-badge-generator@v1.0.1
+        with:
+            label: "Docker build"
+            status: "Success"
+            color: "green"
+            path: ${{ steps.environment.outputs.path }}
+            logo: docker
+      - name: Upload badge as artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: badge
+            path: ${{ steps.environment.outputs.path }}
+            if-no-files-found: error
+      - name: Commit badge
+        continue-on-error: true
+        env:
+            BADGE: ${{ steps.environment.outputs.path }}
+        run: |
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add "${BADGE}"
+            git commit -m "Add/Update badge"
+      - name: Push badge commit
+        uses: ad-m/github-push-action@master
+        if: ${{ success() }}
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ steps.environment.outputs.branch }}
