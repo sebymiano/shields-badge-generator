@@ -1,4 +1,6 @@
 # Shileds.io Badge Generator
+![.github/workflows/test.yml](https://github.com/sebymiano/shields-badge-generator/blob/badges/main/test.svg)
+
 This action generates a SVG badge from [Shields.io](https://shields.io/) and saves it to a file.
 
 ## Inputs
