@@ -1,0 +1,80 @@
+name: 'Create Shield Badge'
+author: 'Sebastiano Miano'
+description: 'Create a SVG badge using GitHub Actions'
+inputs:
+  label:
+    description: 'The left label of the badge, usually static.'
+    required: true
+  status:
+    description: 'The right status as the badge, usually based on results.'
+    required: true
+  color:
+    description: 'An array (comma separated) with hex or named colors of the badge value background. More than one creates gradient background.'
+    required: true
+    default: 'blue'
+  label-color:
+    description: 'Hex or named color for the label'
+    required: true
+    default: '555'
+  style:
+    type: 'choice'
+    description: 'Badge style: flat, flat-square, plastic, for-the-badge, social'
+    required: true
+    options:
+    - 'flat'
+    - 'flat-square'
+    - 'plastic'
+    - 'for-the-badge'
+    - 'social'
+    default: 'flat'
+  logo:
+    description: 'One of the named logos or simple-icons. See https://simpleicons.org/ for the list of available icons.'
+    required: false
+  logo-color:
+    description: 'The color of the logo (hex, rgb, rgba, hsl, hsla and css named colors supported).'
+    required: false
+  path:
+    description: 'The file path to store the badge image file. Only output to `badge` action output if undefined.'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Check all input parameters
+    id: input-check
+    run: |
+      # 1. If the string contains a space, every space should be replaed with %20
+      # 2. If the string contains a single underscore (_), it should be replaced with a double underscore (__)
+      # 3. If the string contains a single dash (-), it should be replaced with a double dash (--)
+      original_label="${{ inputs.label }}"
+      modified_label=$(echo "$original_label" | sed 's/ /%20/g;s/_/__/g;s/-/--/g')
+      echo "label=$modified_label" >> $GITHUB_OUTPUT
+
+      original_status="${{ inputs.status }}"
+      modified_status=$(echo "$original_status" | sed 's/ /%20/g;s/_/__/g;s/-/--/g')
+      echo "status=$modified_status" >> $GITHUB_OUTPUT
+    shell: bash
+  - name: Install curl
+    run: |
+      sudo apt-get update
+      sudo apt-get install curl -y
+    shell: bash
+  - name: Create badge
+    shell: bash
+    run: |
+      # I want to construct the final URL based on the input parameters
+      final_url="https://img.shields.io/badge/${{ steps.input-check.outputs.label }}-${{ steps.input-check.outputs.status }}-${{ inputs.color }}?style=${{ inputs.style }}&labelColor=${{ inputs.label-color }}"
+
+      # If the logo is defined, add it to the URL
+      if [ -n "${{ inputs.logo }}" ]; then
+        final_url="${{ final_url }}&logo=${{ inputs.logo }}"
+      fi
+
+      # If the logo color is defined, add it to the URL
+      if [ -n "${{ inputs.logo-color }}" ]; then
+        final_url="${{ final_url }}&logoColor=${{ inputs.logo-color }}"
+      fi
+
+      # If the path is defined, download the badge to the path
+      curl -s -o "${{ inputs.path }}" "${{ final_url }}"
+
+
