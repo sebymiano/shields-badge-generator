@@ -1,6 +1,9 @@
 name: 'Create Shield Badge'
 author: 'Sebastiano Miano'
 description: 'Create a SVG badge using GitHub Actions'
+branding:
+  icon: 'shield'
+  color: 'blue'
 inputs:
   label:
     description: 'The left label of the badge, usually static.'
@@ -66,15 +69,15 @@ runs:
 
       # If the logo is defined, add it to the URL
       if [ -n "${{ inputs.logo }}" ]; then
-        final_url="${{ final_url }}&logo=${{ inputs.logo }}"
+        final_url="${final_url}&logo=${{ inputs.logo }}"
       fi
 
       # If the logo color is defined, add it to the URL
       if [ -n "${{ inputs.logo-color }}" ]; then
-        final_url="${{ final_url }}&logoColor=${{ inputs.logo-color }}"
+        final_url="${final_url}&logoColor=${{ inputs.logo-color }}"
       fi
 
       # If the path is defined, download the badge to the path
-      curl -s -o "${{ inputs.path }}" "${{ final_url }}"
+      curl -s -o "${{ inputs.path }}" "${final_url}"
 
 
