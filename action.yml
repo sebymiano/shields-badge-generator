@@ -78,6 +78,6 @@ runs:
       fi
 
       # If the path is defined, download the badge to the path
-      curl -s -o "${{ inputs.path }}" "${final_url}"
+      curl -s "${final_url}" > "${{ inputs.path }}"
 
 
