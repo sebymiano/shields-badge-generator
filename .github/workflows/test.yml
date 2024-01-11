@@ -33,7 +33,7 @@ jobs:
             BADGE_PATH: ${{ steps.environment.outputs.path }}
         run: mkdir -p "${BADGE_PATH%/*}"
       - name: Generate the badge SVG image
-        uses: sebymiano/shields-badge-generator@v1.0.1
+        uses: sebymiano/shields-badge-generator@v1.0.2
         with:
             label: "Docker build"
             status: "Success"
